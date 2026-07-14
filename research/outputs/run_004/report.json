@@ -1,0 +1,12 @@
+{
+    "model_name": "sam2",
+    "input_dimensions": "512x512",
+    "metrics": {
+        "inference_time_seconds": 0.4513,
+        "total_processing_time_seconds": 0.4921,
+        "mask_coverage_percentage": 4.3,
+        "connected_components_count": 2,
+        "average_confidence": 0.92
+    },
+    "recommendation": "Highly Recommended: Output shows high line continuity and low fragmentation."
+}

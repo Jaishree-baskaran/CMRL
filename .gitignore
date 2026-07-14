@@ -1,0 +1,18 @@
+# Virtual Environment
+.venv/
+__pycache__/
+*.pyc
+
+# Node Modules (Frontend dependencies)
+node_modules/
+frontend/node_modules/
+
+# Compiled Builds
+dist/
+frontend/dist/
+
+# Local cache & data
+backend/cache/
+*.log
+.DS_Store
+Thumbs.db

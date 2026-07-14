@@ -1,0 +1,29 @@
+[
+    {
+        "id": "DF-01",
+        "name": "Turnout Obstruction",
+        "mileage": "Mile 124.58",
+        "lat": 13.0569,
+        "lon": 80.08851,
+        "confidence": 0.94,
+        "status": "Pending"
+    },
+    {
+        "id": "DF-02",
+        "name": "Missing Fastener",
+        "mileage": "Mile 124.72",
+        "lat": 13.0571,
+        "lon": 80.08862,
+        "confidence": 0.88,
+        "status": "Verified"
+    },
+    {
+        "id": "DF-03",
+        "name": "Sleeper Crack",
+        "mileage": "Mile 125.10",
+        "lat": 13.0567,
+        "lon": 80.08845,
+        "confidence": 0.81,
+        "status": "False Positive"
+    }
+]

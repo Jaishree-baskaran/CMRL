@@ -1,0 +1,12 @@
+{
+    "model_name": "classical",
+    "input_dimensions": "512x512",
+    "metrics": {
+        "inference_time_seconds": 0.0147,
+        "total_processing_time_seconds": 0.0805,
+        "mask_coverage_percentage": 6.64,
+        "connected_components_count": 2,
+        "average_confidence": 0.6
+    },
+    "recommendation": "Highly Recommended: Output shows high line continuity and low fragmentation."
+}
