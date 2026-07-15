@@ -562,13 +562,14 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100 antialiased">
-      <aside className="w-[400px] bg-slate-900 border-r border-slate-800/80 flex flex-col z-10 shadow-2xl relative">
-        <header className="p-6 border-b border-slate-800/50 flex items-center justify-between relative z-10">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans text-slate-800 antialiased">
+      {/* Sidebar Controls */}
+      <aside className="w-[400px] bg-white border-r border-slate-200 flex flex-col z-10 shadow-xl relative">
+        <header className="p-6 border-b border-slate-200/80 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-bold text-xs tracking-wider uppercase text-slate-100">RailVision AI</h1>
-              <span className="text-[8px] text-slate-400 uppercase tracking-widest font-semibold block mt-0.5">GIS Twin Platform</span>
+              <h1 className="font-bold text-xs tracking-wider uppercase text-blue-900">RailVision AI</h1>
+              <span className="text-[8px] text-slate-500 uppercase tracking-widest font-semibold block mt-0.5">GIS Twin Platform</span>
             </div>
           </div>
           <span className="flex h-2 w-2 relative">
@@ -578,24 +579,24 @@ export default function App() {
         </header>
 
         {/* Tab Selector */}
-        <div className="grid grid-cols-3 gap-1.5 p-4 bg-slate-950/80 border-b border-slate-800/40 text-xs font-semibold relative z-10">
+        <div className="grid grid-cols-3 gap-1.5 p-4 bg-slate-50 border-b border-slate-200/80 text-xs font-semibold relative z-10">
           <button 
             onClick={() => setActiveTab('alignment')}
-            className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'alignment' ? 'bg-blue-600/15 border border-blue-500/30 text-blue-450 shadow-inner' : 'border border-transparent text-slate-400 hover:text-slate-200'}`}
+            className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'alignment' ? 'bg-blue-50 border border-blue-200/60 text-blue-700 shadow-sm' : 'border border-transparent text-slate-550 hover:text-slate-850 hover:bg-slate-200/40'}`}
           >
             <MapIcon size={14} />
             <span>Dataset</span>
           </button>
           <button 
             onClick={() => setActiveTab('ai')}
-            className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'ai' ? 'bg-blue-600/15 border border-blue-500/30 text-blue-450 shadow-inner' : 'border border-transparent text-slate-400 hover:text-slate-200'}`}
+            className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'ai' ? 'bg-blue-50 border border-blue-200/60 text-blue-700 shadow-sm' : 'border border-transparent text-slate-550 hover:text-slate-850 hover:bg-slate-200/40'}`}
           >
             <Cpu size={14} />
             <span>Inspection</span>
           </button>
           <button 
             onClick={() => setActiveTab('layers')}
-            className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'layers' ? 'bg-blue-600/15 border border-blue-500/30 text-blue-450 shadow-inner' : 'border border-transparent text-slate-400 hover:text-slate-200'}`}
+            className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'layers' ? 'bg-blue-50 border border-blue-200/60 text-blue-700 shadow-sm' : 'border border-transparent text-slate-550 hover:text-slate-850 hover:bg-slate-200/40'}`}
           >
             <Layers size={14} />
             <span>GIS Layers</span>
@@ -608,29 +609,29 @@ export default function App() {
             <div className="space-y-6 animate-fadeIn">
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Raster Metadata</h2>
-                  <span className="text-[10px] px-2 py-0.5 bg-emerald-950/60 border border-emerald-900/60 text-emerald-400 rounded-full font-mono font-medium">Verified CRS</span>
+                  <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Raster Metadata</h2>
+                  <span className="text-[10px] px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-750 rounded-full font-mono font-semibold">Verified CRS</span>
                 </div>
-                <div className="bg-slate-950/60 backdrop-blur-sm rounded-xl border border-slate-800/60 p-4 space-y-3 text-xs font-mono">
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">Filename</span><span className="font-semibold text-slate-300">{metadata.filename}</span></div>
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">Raster Type</span><span className="font-semibold text-blue-400">{metadata.raster_type}</span></div>
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">GDAL Driver</span><span className="text-slate-300">{metadata.driver}</span></div>
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">Spatial CRS</span><span className="font-semibold text-slate-400 truncate max-w-[190px]" title={metadata.crs}>{metadata.crs}</span></div>
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">Dimensions</span><span className="text-slate-300">{metadata.width} x {metadata.height} px</span></div>
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">Pixel Size</span><span className="text-slate-300">{(metadata.pixel_size.x * 100).toFixed(2)} cm</span></div>
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">GSD (Res)</span><span className="font-semibold text-emerald-400">~{(metadata.estimated_gsd * 1000).toFixed(1)} mm</span></div>
-                  <div className="flex justify-between border-b border-slate-900/60 pb-2"><span className="text-slate-500">Pyramid Cache</span><span className="text-slate-300">{metadata.cache_status}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-500">XYZ Indexing</span><span className="font-semibold text-emerald-400">{metadata.tile_generation_status}</span></div>
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3 text-xs font-mono text-slate-750">
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Filename</span><span className="font-semibold text-slate-800">{metadata.filename}</span></div>
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Raster Type</span><span className="font-semibold text-blue-650">{metadata.raster_type}</span></div>
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">GDAL Driver</span><span className="text-slate-700">{metadata.driver}</span></div>
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Spatial CRS</span><span className="font-semibold text-slate-700 truncate max-w-[190px]" title={metadata.crs}>{metadata.crs}</span></div>
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Dimensions</span><span className="text-slate-700">{metadata.width} x {metadata.height} px</span></div>
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Pixel Size</span><span className="text-slate-700">{(metadata.pixel_size.x * 100).toFixed(2)} cm</span></div>
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">GSD (Res)</span><span className="font-semibold text-emerald-650">~{(metadata.estimated_gsd * 1000).toFixed(1)} mm</span></div>
+                  <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Pyramid Cache</span><span className="text-slate-700">{metadata.cache_status}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">XYZ Indexing</span><span className="font-semibold text-emerald-650">{metadata.tile_generation_status}</span></div>
                 </div>
               </div>
 
               <div>
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">WGS84 Coordinates</h2>
-                <div className="bg-slate-950/60 backdrop-blur-sm rounded-xl border border-slate-800/60 p-4 space-y-2.5 text-xs font-mono">
-                  <div className="flex justify-between"><span className="text-slate-500">West Longitude</span><span className="text-slate-300">{metadata.wgs84_bounds.left.toFixed(7)}&deg;</span></div>
-                  <div className="flex justify-between"><span className="text-slate-500">East Longitude</span><span className="text-slate-300">{metadata.wgs84_bounds.right.toFixed(7)}&deg;</span></div>
-                  <div className="flex justify-between border-t border-slate-900/60 pt-2"><span className="text-slate-500">South Latitude</span><span className="text-slate-300">{metadata.wgs84_bounds.bottom.toFixed(7)}&deg;</span></div>
-                  <div className="flex justify-between"><span className="text-slate-500">North Latitude</span><span className="text-slate-300">{metadata.wgs84_bounds.top.toFixed(7)}&deg;</span></div>
+                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">WGS84 Coordinates</h2>
+                <div className="bg-slate-50 rounded-xl border border-slate-200/80 p-4 space-y-2.5 text-xs font-mono text-slate-750">
+                  <div className="flex justify-between"><span className="text-slate-500">West Longitude</span><span className="text-slate-700">{metadata.wgs84_bounds.left.toFixed(7)}&deg;</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">East Longitude</span><span className="text-slate-700">{metadata.wgs84_bounds.right.toFixed(7)}&deg;</span></div>
+                  <div className="flex justify-between border-t border-slate-200/60 pt-2"><span className="text-slate-500">South Latitude</span><span className="text-slate-700">{metadata.wgs84_bounds.bottom.toFixed(7)}&deg;</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">North Latitude</span><span className="text-slate-700">{metadata.wgs84_bounds.top.toFixed(7)}&deg;</span></div>
                 </div>
               </div>
             </div>
@@ -639,13 +640,13 @@ export default function App() {
           {activeTab === 'ai' && (
             <div className="space-y-6 animate-fadeIn">
               <div>
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Ingest & Inspect</h2>
+                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Ingest & Inspect</h2>
                 
                 {/* AI Automated Detection Trigger Button */}
                 <button 
                   onClick={runAIRailDetection}
                   disabled={isRunningAI}
-                  className="w-full flex items-center justify-center gap-2 mb-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:from-slate-800 disabled:to-slate-800 text-white rounded-xl font-bold text-xs transition duration-200 shadow-lg shadow-blue-500/10 active:scale-[0.98] pointer-events-auto border border-white/10"
+                  className="w-full flex items-center justify-center gap-2 mb-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:from-slate-350 disabled:to-slate-350 text-white rounded-xl font-bold text-xs transition duration-200 shadow-lg shadow-blue-500/10 active:scale-[0.98] pointer-events-auto border border-white/10"
                 >
                   {isRunningAI ? (
                     <>
@@ -658,14 +659,14 @@ export default function App() {
                 </button>
 
                 {hasAICompleted && (
-                  <div className="mb-4 flex justify-between items-center bg-cyan-950/20 border border-cyan-500/20 px-3 py-2.5 rounded-lg text-xs">
-                    <span className="text-cyan-400 font-semibold font-mono flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 bg-cyan-400 rounded-full animate-ping"></span>
+                  <div className="mb-4 flex justify-between items-center bg-cyan-50 border border-cyan-200 px-3 py-2.5 rounded-lg text-xs">
+                    <span className="text-cyan-700 font-semibold font-mono flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 bg-cyan-500 rounded-full animate-ping"></span>
                       Centerline Overlay Active
                     </span>
                     <button 
                       onClick={clearAIDetections}
-                      className="text-[10px] text-slate-400 hover:text-slate-200 underline font-medium"
+                      className="text-[10px] text-slate-500 hover:text-slate-750 underline font-medium"
                     >
                       Clear Overlay
                     </button>
@@ -673,21 +674,21 @@ export default function App() {
                 )}
 
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-slate-950/60 border border-slate-800/60 p-3 rounded-xl flex items-center gap-3">
-                    <div className="p-2 bg-red-950/55 text-red-400 border border-red-900/35 rounded-lg">
+                  <div className="bg-white border border-slate-200 p-3 rounded-xl flex items-center gap-3 shadow-sm">
+                    <div className="p-2 bg-red-50 text-red-600 border border-red-100 rounded-lg">
                       <AlertTriangle size={18} />
                     </div>
                     <div>
-                      <div className="text-xl font-bold font-mono text-slate-200">{defects.filter(d => d.status !== 'False Positive').length}</div>
+                      <div className="text-xl font-bold font-mono text-slate-800">{defects.filter(d => d.status !== 'False Positive').length}</div>
                       <div className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Active Items</div>
                     </div>
                   </div>
-                  <div className="bg-slate-950/60 border border-slate-800/60 p-3 rounded-xl flex items-center gap-3">
-                    <div className="p-2 bg-blue-950/55 text-blue-400 border border-blue-900/35 rounded-lg">
+                  <div className="bg-white border border-slate-200 p-3 rounded-xl flex items-center gap-3 shadow-sm">
+                    <div className="p-2 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg">
                       <TrendingUp size={18} />
                     </div>
                     <div>
-                      <div className="text-xl font-bold font-mono text-slate-200">98.4%</div>
+                      <div className="text-xl font-bold font-mono text-slate-800">98.4%</div>
                       <div className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Confidence</div>
                     </div>
                   </div>
@@ -695,13 +696,12 @@ export default function App() {
 
                 <div className="space-y-3">
                   {defects.map(d => (
-                    <div key={d.id} className={`bg-slate-950/40 backdrop-blur-sm p-4 rounded-xl border transition-all duration-300 ${d.status === 'Verified' ? 'border-emerald-500/30 bg-emerald-950/5' : d.status === 'False Positive' ? 'border-slate-900/40 opacity-40' : 'border-slate-800/60'}`}>
-                      <div className="flex justify-between items-start mb-2">
+                    <div key={d.id} className={`bg-white p-4 rounded-xl border transition-all duration-350 shadow-sm hover:border-blue-300/80 ${d.status === 'Verified' ? 'border-emerald-200 bg-emerald-50/20' : d.status === 'False Positive' ? 'border-slate-200 opacity-50 bg-slate-50/50' : 'border-slate-200'}`}>                      <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="font-bold text-slate-250 text-xs tracking-wide">{d.name}</h3>
-                          <span className="text-[10px] text-slate-500 font-mono">{d.id} • {d.mileage}</span>
+                          <h3 className="font-bold text-slate-800 text-xs tracking-wide">{d.name}</h3>
+                          <span className="text-[10px] text-slate-550 font-mono">{d.id} • {d.mileage}</span>
                         </div>
-                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider ${d.status === 'Verified' ? 'bg-emerald-950/80 text-emerald-450 border border-emerald-900/50' : d.status === 'False Positive' ? 'bg-slate-900 text-slate-500' : d.status === 'Needs Review' ? 'bg-amber-950/80 text-amber-450 border border-amber-900/50' : 'bg-blue-950/85 text-blue-400 border border-blue-900/50'}`}>
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider ${d.status === 'Verified' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : d.status === 'False Positive' ? 'bg-slate-100 text-slate-450 border border-slate-200' : d.status === 'Needs Review' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}`}>
                           {d.status}
                         </span>
                       </div>
@@ -710,9 +710,9 @@ export default function App() {
                       <div className="space-y-1 mb-3">
                         <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                           <span>Confidence Metric</span>
-                          <span className="font-semibold text-slate-400">{(d.confidence * 100).toFixed(0)}%</span>
+                          <span className="font-semibold text-slate-650">{(d.confidence * 100).toFixed(0)}%</span>
                         </div>
-                        <div className="h-1 w-full bg-slate-900 rounded-full overflow-hidden">
+                        <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
                           <div 
                             className="h-full rounded-full bg-blue-500 transition-all duration-500"
                             style={{ width: `${d.confidence * 100}%` }}
@@ -720,29 +720,29 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="text-[10px] text-slate-400 font-mono space-y-1 mb-3 bg-slate-950/50 p-2.5 rounded-lg border border-slate-900/40">
+                      <div className="text-[10px] text-slate-650 font-mono space-y-1 mb-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80">
                         <div className="flex justify-between"><span>Latitude:</span><span>{d.lat.toFixed(6)}&deg;</span></div>
                         <div className="flex justify-between"><span>Longitude:</span><span>{d.lon.toFixed(6)}&deg;</span></div>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-1.5 pt-2 border-t border-slate-900/30">
+                      <div className="grid grid-cols-4 gap-1.5 pt-2 border-t border-slate-100">
                         <button 
                           onClick={() => inspectDefectLocation(d.lat, d.lon)}
-                          className="col-span-2 flex items-center justify-center gap-1 py-1.5 bg-blue-600/90 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold transition-all active:scale-[0.96]"
+                          className="col-span-2 flex items-center justify-center gap-1 py-1.5 bg-blue-600/90 hover:bg-blue-550 text-white rounded-lg text-[10px] font-bold transition-all active:scale-[0.96]"
                           title="Fly camera to coordinates"
                         >
                           <Search size={12} /> Inspect
                         </button>
                         <button 
                           onClick={() => updateDefectStatus(d.id, 'Verified')}
-                          className="flex items-center justify-center py-1.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-850 hover:border-emerald-900/50 text-slate-400 hover:text-emerald-450 rounded-lg transition-all"
+                          className="flex items-center justify-center py-1.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-500 hover:text-emerald-700 rounded-lg transition-all"
                           title="Verify Defect"
                         >
                           <CheckCircle size={14} />
                         </button>
                         <button 
                           onClick={() => updateDefectStatus(d.id, 'False Positive')}
-                          className="flex items-center justify-center py-1.5 bg-slate-900 hover:bg-red-950/60 border border-slate-850 hover:border-red-900/50 text-slate-400 hover:text-red-450 rounded-lg transition-all"
+                          className="flex items-center justify-center py-1.5 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-300 text-slate-500 hover:text-red-700 rounded-lg transition-all"
                           title="Mark False Positive"
                         >
                           <XCircle size={14} />
@@ -758,50 +758,52 @@ export default function App() {
           {activeTab === 'layers' && (
             <div className="space-y-6 animate-fadeIn">
               <div>
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">GIS Layer Management</h2>
-                <div className="bg-slate-950/60 backdrop-blur-sm rounded-xl border border-slate-800/60 p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-900/40 pb-3">
+                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">GIS Layer Management</h2>
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
                     <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-slate-200">High-Res Orthophoto</span>
+                      <span className="text-xs font-semibold text-slate-800">High-Res Orthophoto</span>
                       <span className="text-[10px] text-slate-500 font-mono">SINGLE_TRACK.tif</span>
                     </div>
                     <button 
                       onClick={() => toggleLayer('raster')}
-                      className={`p-2 rounded-lg border transition-all ${activeLayers.raster ? 'bg-blue-600/15 border-blue-500/40 text-blue-400 shadow-inner' : 'bg-slate-900/40 border-slate-800/80 text-slate-500'}`}
+                      className={`p-2 rounded-lg border transition-all ${activeLayers.raster ? 'bg-blue-50 border-blue-200/60 text-blue-600 shadow-sm' : 'bg-slate-100 border-slate-200 text-slate-400'}`}
                     >
                       {activeLayers.raster ? <Eye size={14} /> : <EyeOff size={14} />}
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-slate-900/40 pb-3">
+                  <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
                     <div className="flex flex-col font-mono text-[10px]">
-                      <span className="text-xs font-sans font-semibold text-slate-200">AI Segmented Centerlines</span>
-                      <span className={`${hasAICompleted ? 'text-cyan-400' : 'text-slate-550 font-sans'}`}>{hasAICompleted ? 'Active' : 'Unloaded'}</span>
+                      <span className="text-xs font-sans font-semibold text-slate-800">AI Segmented Centerlines</span>
+                      <span className={`${hasAICompleted ? 'text-cyan-600 font-sans' : 'text-slate-450 font-sans'}`}>{hasAICompleted ? 'Active' : 'Unloaded'}</span>
                     </div>
                     <button 
                       onClick={hasAICompleted ? clearAIDetections : runAIRailDetection}
-                      className={`p-2 rounded-lg border transition-all ${hasAICompleted ? 'bg-cyan-600/15 border-cyan-500/40 text-cyan-400 shadow-inner' : 'bg-slate-900/40 border-slate-800/80 text-slate-500'}`}
+                      className={`p-2 rounded-lg border transition-all ${hasAICompleted ? 'bg-cyan-50 border-cyan-200 text-cyan-600 shadow-sm' : 'bg-slate-100 border-slate-200 text-slate-400'}`}
                     >
                       {hasAICompleted ? <Eye size={14} /> : <EyeOff size={14} />}
                     </button>
                   </div>
+                </div>
 
-                  <div className="flex items-center justify-between opacity-40">
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 mt-4 space-y-3">
+                  <div className="flex items-center justify-between opacity-50">
                     <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-slate-200">Track Geometry Nodes</span>
-                      <span className="text-[10px] text-slate-500">Curvature indices</span>
+                      <span className="text-xs font-semibold text-slate-750">Track Geometry Nodes</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Curvature indices</span>
                     </div>
-                    <button className="p-2 rounded-lg border bg-slate-900/40 border-slate-800/40 text-slate-600 cursor-not-allowed">
+                    <button className="p-2 rounded-lg border bg-slate-100 border-slate-250 text-slate-400 cursor-not-allowed">
                       <EyeOff size={14} />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between opacity-40">
+                  <div className="flex items-center justify-between opacity-50">
                     <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-slate-200">Defect Density Heatmaps</span>
-                      <span className="text-[10px] text-slate-500">Intensity overlay</span>
+                      <span className="text-xs font-semibold text-slate-750">Defect Density Heatmaps</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Intensity overlay</span>
                     </div>
-                    <button className="p-2 rounded-lg border bg-slate-900/40 border-slate-800/40 text-slate-600 cursor-not-allowed">
+                    <button className="p-2 rounded-lg border bg-slate-100 border-slate-250 text-slate-400 cursor-not-allowed">
                       <EyeOff size={14} />
                     </button>
                   </div>
@@ -811,27 +813,27 @@ export default function App() {
           )}
         </main>
 
-        <footer className="p-4 border-t border-slate-800/40 bg-slate-950/80 flex gap-2 items-center text-[10px] justify-between relative z-10">
-          <span className="text-slate-500 font-medium">&copy; RailVision AI Inc.</span>
-          <button className="flex items-center gap-1 text-blue-400 hover:text-blue-300 font-semibold transition">
+        <footer className="p-4 border-t border-slate-200 bg-slate-50 flex gap-2 items-center text-[10px] justify-between relative z-10">
+          <span className="text-slate-500 font-semibold">&copy; CMRL Digital Twin.</span>
+          <button className="flex items-center gap-1 text-blue-650 hover:text-blue-800 font-bold transition">
             <RefreshCw size={10} /> Sync DB
           </button>
         </footer>
       </aside>
 
       {/* Main 3D Workspace */}
-      <section className="flex-1 flex flex-col relative bg-slate-950">
+      <section className="flex-1 flex flex-col relative bg-slate-50">
         {/* Cesium canvas mounts here */}
         <div ref={cesiumContainerRef} className="w-full h-full absolute inset-0 z-0" />
 
         {/* Floating Coordinates & High-Precision Geodesic Ruler Overlay */}
         <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-10 pointer-events-none">
           {/* Measurement Toolbar (Interactive) */}
-          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800/60 p-3.5 rounded-2xl flex items-center gap-3.5 shadow-2xl pointer-events-auto shadow-black/50">
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200/80 p-3.5 rounded-2xl flex items-center gap-3.5 shadow-xl pointer-events-auto">
             {/* Linear Geodesic Ruler */}
             <button 
               onClick={toggleMeasurement}
-              className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-bold ${isMeasuring ? 'bg-red-600 border-red-500 text-white animate-pulse shadow-lg shadow-red-500/20' : 'bg-slate-950/80 border-slate-800 hover:bg-slate-800 text-slate-200'}`}
+              className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-bold ${isMeasuring ? 'bg-red-600 border-red-500 text-white animate-pulse shadow-lg shadow-red-500/20' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:text-slate-900'}`}
             >
               <Ruler size={15} />
               <span>Measure Gauge</span>
@@ -840,7 +842,7 @@ export default function App() {
             {/* 3-Point Curvature Radius Ruler */}
             <button 
               onClick={toggleCurveMeasurement}
-              className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-bold ${isMeasuringCurve ? 'bg-yellow-500 border-yellow-400 text-slate-950 animate-pulse shadow-lg shadow-yellow-500/20' : 'bg-slate-950/80 border-slate-800 hover:bg-slate-800 text-slate-200'}`}
+              className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-bold ${isMeasuringCurve ? 'bg-yellow-500 border-yellow-400 text-slate-950 animate-pulse shadow-lg shadow-yellow-500/20' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:text-slate-900'}`}
             >
               <Compass size={15} />
               <span>Measure Radius</span>
@@ -855,7 +857,7 @@ export default function App() {
                   clearMeasurements();
                   clearCurveMeasurements();
                 }}
-                className="p-2.5 bg-red-950/80 hover:bg-red-900 border border-red-800/50 text-red-200 hover:text-white rounded-xl transition flex items-center gap-1 text-xs font-bold"
+                className="p-2.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-750 rounded-xl transition flex items-center gap-1 text-xs font-bold"
                 title="Cancel Measurement"
               >
                 <X size={15} />
@@ -865,23 +867,23 @@ export default function App() {
 
             {/* Linear Results display */}
             {measureDistance !== null && (
-              <div className="flex gap-4 bg-slate-950/85 px-4 py-2 border border-slate-800/80 rounded-xl text-xs font-mono shadow-inner">
+              <div className="flex gap-4 bg-slate-50 px-4 py-2 border border-slate-200 rounded-xl text-xs font-mono shadow-inner">
                 <div>
                   <div className="text-slate-500 uppercase tracking-widest text-[9px] font-bold">Ellipsoid Width</div>
-                  <div className="text-emerald-400 font-extrabold text-sm">
+                  <div className="text-emerald-600 font-extrabold text-sm">
                     {(measureDistance * 1000).toFixed(1)} mm
                   </div>
                 </div>
-                <div className="border-l border-slate-850"></div>
+                <div className="border-l border-slate-200"></div>
                 <div>
                   <div className="text-slate-500 uppercase tracking-widest text-[9px] font-bold">Standard</div>
-                  <div className="text-slate-350 font-semibold">
+                  <div className="text-slate-750 font-semibold">
                     {measureDistance.toFixed(3)} m
                   </div>
                 </div>
                 <button 
                   onClick={clearMeasurements}
-                  className="px-2 py-0.5 bg-slate-900 hover:bg-slate-800 border border-slate-850 rounded-lg text-[9px] text-slate-400 transition"
+                  className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-[9px] text-slate-600 transition"
                 >
                   Clear
                 </button>
@@ -890,23 +892,23 @@ export default function App() {
 
             {/* Curve Results display */}
             {curveRadius !== null && (
-              <div className="flex gap-4 bg-slate-950/85 px-4 py-2 border border-slate-800/80 rounded-xl text-xs font-mono shadow-inner">
+              <div className="flex gap-4 bg-slate-50 px-4 py-2 border border-slate-200 rounded-xl text-xs font-mono shadow-inner">
                 <div>
                   <div className="text-slate-500 uppercase tracking-widest text-[9px] font-bold">Radius R</div>
-                  <div className="text-yellow-450 font-extrabold text-sm">
+                  <div className="text-amber-600 font-extrabold text-sm">
                     {curveRadius.toFixed(2)} m
                   </div>
                 </div>
-                <div className="border-l border-slate-850"></div>
+                <div className="border-l border-slate-200"></div>
                 <div>
                   <div className="text-slate-500 uppercase tracking-widest text-[9px] font-bold">Deg of Curve</div>
-                  <div className="text-slate-350 font-semibold">
+                  <div className="text-slate-750 font-semibold">
                     {(2 * Math.asin(50 / curveRadius) * (180 / Math.PI)).toFixed(3)}&deg;
                   </div>
                 </div>
                 <button 
                   onClick={clearCurveMeasurements}
-                  className="px-2 py-0.5 bg-slate-900 hover:bg-slate-800 border border-slate-850 rounded-lg text-[9px] text-slate-400 transition"
+                  className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-[9px] text-slate-600 transition"
                 >
                   Clear
                 </button>
@@ -914,15 +916,15 @@ export default function App() {
             )}
             
             {isMeasuring && measureDistance === null && (
-              <div className="text-[11px] font-mono text-slate-400 px-2 flex items-center gap-1.5">
+              <div className="text-[11px] font-mono text-slate-600 px-2 flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 bg-red-500 rounded-full animate-ping"></span>
                 Click left rail then right rail on the track.
               </div>
             )}
 
             {isMeasuringCurve && curveRadius === null && (
-              <div className="text-[11px] font-mono text-slate-400 px-2 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 bg-yellow-450 rounded-full animate-ping"></span>
+              <div className="text-[11px] font-mono text-slate-600 px-2 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 bg-yellow-600 rounded-full animate-ping"></span>
                 Click 3 points sequentially along the turnout curve.
               </div>
             )}
@@ -930,27 +932,27 @@ export default function App() {
 
           {/* Location details (Read-only status) */}
           {metadata && (
-            <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800/60 p-3.5 rounded-2xl flex items-center gap-4 shadow-2xl pointer-events-auto shadow-black/50">
+            <div className="bg-white/95 backdrop-blur-md border border-slate-200/80 p-3.5 rounded-2xl flex items-center gap-4 shadow-xl pointer-events-auto">
               <div className="flex items-center gap-4 text-xs font-mono">
                 <div>
                   <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">LATITUDE</div>
-                  <div className="text-slate-300 font-medium">
+                  <div className="text-slate-700 font-medium">
                     {Math.abs((metadata.wgs84_bounds.bottom + metadata.wgs84_bounds.top) / 2).toFixed(5)}&deg;{' '}
                     {(metadata.wgs84_bounds.bottom + metadata.wgs84_bounds.top) / 2 >= 0 ? 'N' : 'S'}
                   </div>
                 </div>
-                <div className="border-l border-slate-800 h-6"></div>
+                <div className="border-l border-slate-200 h-6"></div>
                 <div>
                   <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">LONGITUDE</div>
-                  <div className="text-slate-300 font-medium">
+                  <div className="text-slate-700 font-medium">
                     {Math.abs((metadata.wgs84_bounds.left + metadata.wgs84_bounds.right) / 2).toFixed(5)}&deg;{' '}
                     {(metadata.wgs84_bounds.left + metadata.wgs84_bounds.right) / 2 >= 0 ? 'E' : 'W'}
                   </div>
                 </div>
-                <div className="border-l border-slate-800 h-6"></div>
+                <div className="border-l border-slate-200 h-6"></div>
                 <div>
                   <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">RES (GSD)</div>
-                  <div className="text-emerald-400 font-bold">{(metadata.estimated_gsd * 1000).toFixed(1)} mm</div>
+                  <div className="text-emerald-600 font-bold">{(metadata.estimated_gsd * 1000).toFixed(1)} mm</div>
                 </div>
               </div>
             </div>
