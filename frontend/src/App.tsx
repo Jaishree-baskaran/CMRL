@@ -521,12 +521,12 @@ export default function App() {
   // Loading Screen Overlay
   if (loadingStep !== "Idle") {
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center bg-slate-950 text-slate-100 font-sans">
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-2xl flex flex-col items-center gap-6 max-w-md w-full shadow-2xl">
-          <Loader2 className="animate-spin text-blue-500" size={48} />
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-slate-50 text-slate-800 font-poppins">
+        <div className="bg-white border border-slate-200/80 p-8 rounded-2xl flex flex-col items-center gap-6 max-w-md w-full shadow-xl">
+          <Loader2 className="animate-spin text-blue-600" size={48} />
           <div className="text-center space-y-2">
-            <h2 className="font-bold text-lg tracking-wider uppercase">RailVision AI</h2>
-            <p className="text-sm text-slate-400 font-mono transition-all animate-pulse">{loadingStep}</p>
+            <h2 className="font-extrabold text-lg tracking-wider uppercase text-blue-900">RailVision AI</h2>
+            <p className="text-sm text-slate-500 font-medium transition-all animate-pulse">{loadingStep}</p>
           </div>
         </div>
       </div>

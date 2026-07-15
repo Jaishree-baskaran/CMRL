@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Noto Sans"', 'sans-serif'],
+        poppins: ['"Poppins"', 'sans-serif'],
       },
       colors: {
         brand: {
