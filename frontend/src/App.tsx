@@ -612,7 +612,7 @@ export default function App() {
                   <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Raster Metadata</h2>
                   <span className="text-[10px] px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-750 rounded-full font-mono font-semibold">Verified CRS</span>
                 </div>
-                <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3 text-xs font-mono text-slate-750">
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3 text-xs text-slate-750">
                   <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Filename</span><span className="font-semibold text-slate-800">{metadata.filename}</span></div>
                   <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">Raster Type</span><span className="font-semibold text-blue-650">{metadata.raster_type}</span></div>
                   <div className="flex justify-between border-b border-slate-200/60 pb-2"><span className="text-slate-500">GDAL Driver</span><span className="text-slate-700">{metadata.driver}</span></div>
@@ -627,7 +627,7 @@ export default function App() {
 
               <div>
                 <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">WGS84 Coordinates</h2>
-                <div className="bg-slate-50 rounded-xl border border-slate-200/80 p-4 space-y-2.5 text-xs font-mono text-slate-750">
+                <div className="bg-slate-50 rounded-xl border border-slate-200/80 p-4 space-y-2.5 text-xs text-slate-750">
                   <div className="flex justify-between"><span className="text-slate-500">West Longitude</span><span className="text-slate-700">{metadata.wgs84_bounds.left.toFixed(7)}&deg;</span></div>
                   <div className="flex justify-between"><span className="text-slate-500">East Longitude</span><span className="text-slate-700">{metadata.wgs84_bounds.right.toFixed(7)}&deg;</span></div>
                   <div className="flex justify-between border-t border-slate-200/60 pt-2"><span className="text-slate-500">South Latitude</span><span className="text-slate-700">{metadata.wgs84_bounds.bottom.toFixed(7)}&deg;</span></div>
@@ -708,7 +708,7 @@ export default function App() {
 
                       {/* AI Confidence visual gauge bar */}
                       <div className="space-y-1 mb-3">
-                        <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                        <div className="flex justify-between text-[10px] text-slate-500">
                           <span>Confidence Metric</span>
                           <span className="font-semibold text-slate-650">{(d.confidence * 100).toFixed(0)}%</span>
                         </div>
@@ -720,7 +720,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="text-[10px] text-slate-650 font-mono space-y-1 mb-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80">
+                      <div className="text-[10px] text-slate-650 space-y-1 mb-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80">
                         <div className="flex justify-between"><span>Latitude:</span><span>{d.lat.toFixed(6)}&deg;</span></div>
                         <div className="flex justify-between"><span>Longitude:</span><span>{d.lon.toFixed(6)}&deg;</span></div>
                       </div>
@@ -763,7 +763,7 @@ export default function App() {
                   <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold text-slate-800">High-Res Orthophoto</span>
-                      <span className="text-[10px] text-slate-500 font-mono">SINGLE_TRACK.tif</span>
+                      <span className="text-[10px] text-slate-500">SINGLE_TRACK.tif</span>
                     </div>
                     <button 
                       onClick={() => toggleLayer('raster')}
@@ -774,9 +774,9 @@ export default function App() {
                   </div>
 
                   <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
-                    <div className="flex flex-col font-mono text-[10px]">
+                    <div className="flex flex-col text-[10px]">
                       <span className="text-xs font-sans font-semibold text-slate-800">AI Segmented Centerlines</span>
-                      <span className={`${hasAICompleted ? 'text-cyan-600 font-sans' : 'text-slate-450 font-sans'}`}>{hasAICompleted ? 'Active' : 'Unloaded'}</span>
+                      <span className={`${hasAICompleted ? 'text-cyan-600' : 'text-slate-450'}`}>{hasAICompleted ? 'Active' : 'Unloaded'}</span>
                     </div>
                     <button 
                       onClick={hasAICompleted ? clearAIDetections : runAIRailDetection}
@@ -867,7 +867,7 @@ export default function App() {
 
             {/* Linear Results display */}
             {measureDistance !== null && (
-              <div className="flex gap-4 bg-slate-50 px-4 py-2 border border-slate-200 rounded-xl text-xs font-mono shadow-inner">
+              <div className="flex gap-4 bg-slate-50 px-4 py-2 border border-slate-200 rounded-xl text-xs shadow-inner">
                 <div>
                   <div className="text-slate-500 uppercase tracking-widest text-[9px] font-bold">Ellipsoid Width</div>
                   <div className="text-emerald-600 font-extrabold text-sm">
@@ -892,7 +892,7 @@ export default function App() {
 
             {/* Curve Results display */}
             {curveRadius !== null && (
-              <div className="flex gap-4 bg-slate-50 px-4 py-2 border border-slate-200 rounded-xl text-xs font-mono shadow-inner">
+              <div className="flex gap-4 bg-slate-50 px-4 py-2 border border-slate-200 rounded-xl text-xs shadow-inner">
                 <div>
                   <div className="text-slate-500 uppercase tracking-widest text-[9px] font-bold">Radius R</div>
                   <div className="text-amber-600 font-extrabold text-sm">
@@ -933,7 +933,7 @@ export default function App() {
           {/* Location details (Read-only status) */}
           {metadata && (
             <div className="bg-white/95 backdrop-blur-md border border-slate-200/80 p-3.5 rounded-2xl flex items-center gap-4 shadow-xl pointer-events-auto">
-              <div className="flex items-center gap-4 text-xs font-mono">
+              <div className="flex items-center gap-4 text-xs">
                 <div>
                   <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">LATITUDE</div>
                   <div className="text-slate-700 font-medium">
