@@ -15,7 +15,6 @@ import {
   VerticalOrigin
 } from 'cesium';
 import { 
-  Activity, 
   Layers, 
   Map as MapIcon, 
   AlertTriangle, 
@@ -30,7 +29,6 @@ import {
   Search,
   Ruler,
   Compass,
-  Sparkles,
   X
 } from 'lucide-react';
 
@@ -118,8 +116,11 @@ export default function App() {
     telemetry: true
   });
 
-  // Calculate dynamic backend URL based on dev tunnels
+  // Calculate dynamic backend URL based on dev tunnels or Render cloud
   const getBackendUrl = () => {
+    if (window.location.hostname.includes("onrender.com")) {
+      return "https://railvision-backend-vhia.onrender.com";
+    }
     if (window.location.hostname.includes("devtunnels.ms")) {
       return window.location.origin.replace("-3000.", "-8000.");
     }
@@ -562,17 +563,12 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100 antialiased">
-      {/* Sidebar Controls */}
-      <aside className="w-[400px] bg-slate-900/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col z-10 shadow-2xl relative">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      <aside className="w-[400px] bg-slate-900 border-r border-slate-800/80 flex flex-col z-10 shadow-2xl relative">
         <header className="p-6 border-b border-slate-800/50 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20 ring-1 ring-white/10">
-              <Activity size={20} className="animate-pulse" />
-            </div>
             <div>
-              <h1 className="font-bold text-base tracking-wider uppercase bg-gradient-to-r from-slate-100 to-slate-350 bg-clip-text text-transparent">RailVision AI</h1>
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">GIS Twin Platform</span>
+              <h1 className="font-bold text-xs tracking-wider uppercase text-slate-100">RailVision AI</h1>
+              <span className="text-[8px] text-slate-400 uppercase tracking-widest font-semibold block mt-0.5">GIS Twin Platform</span>
             </div>
           </div>
           <span className="flex h-2 w-2 relative">
@@ -657,10 +653,7 @@ export default function App() {
                       <span>Extracting Rail Vectors...</span>
                     </>
                   ) : (
-                    <>
-                      <Sparkles size={16} className="text-yellow-450 animate-bounce" />
-                      <span>Run AI Rail Detection</span>
-                    </>
+                    <span>Run AI Rail Detection</span>
                   )}
                 </button>
 
@@ -719,9 +712,9 @@ export default function App() {
                           <span>Confidence Metric</span>
                           <span className="font-semibold text-slate-400">{(d.confidence * 100).toFixed(0)}%</span>
                         </div>
-                        <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+                        <div className="h-1 w-full bg-slate-900 rounded-full overflow-hidden">
                           <div 
-                            className={`h-full rounded-full transition-all duration-500 ${d.confidence >= 0.9 ? 'bg-gradient-to-r from-blue-500 to-emerald-500' : d.confidence >= 0.8 ? 'bg-gradient-to-r from-blue-500 to-amber-500' : 'bg-red-500'}`}
+                            className="h-full rounded-full bg-blue-500 transition-all duration-500"
                             style={{ width: `${d.confidence * 100}%` }}
                           ></div>
                         </div>
@@ -841,7 +834,7 @@ export default function App() {
               className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-bold ${isMeasuring ? 'bg-red-600 border-red-500 text-white animate-pulse shadow-lg shadow-red-500/20' : 'bg-slate-950/80 border-slate-800 hover:bg-slate-800 text-slate-200'}`}
             >
               <Ruler size={15} />
-              <span>{isMeasuring ? 'Measuring Width...' : 'Measure Gauge'}</span>
+              <span>Measure Gauge</span>
             </button>
 
             {/* 3-Point Curvature Radius Ruler */}
@@ -850,7 +843,7 @@ export default function App() {
               className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-bold ${isMeasuringCurve ? 'bg-yellow-500 border-yellow-400 text-slate-950 animate-pulse shadow-lg shadow-yellow-500/20' : 'bg-slate-950/80 border-slate-800 hover:bg-slate-800 text-slate-200'}`}
             >
               <Compass size={15} />
-              <span>{isMeasuringCurve ? 'Tracing Curve...' : 'Measure Radius'}</span>
+              <span>Measure Radius</span>
             </button>
 
             {/* Unified Cancel/Exit Button */}
