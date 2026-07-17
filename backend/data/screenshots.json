@@ -33,5 +33,12 @@
         "original_name": "WhatsApp Image 2026-07-17 at 12.10.53.jpeg",
         "timestamp": "2026-07-17 15:46:00",
         "url": "/api/v1/image/screenshots/file/screenshot_b49e165fade646dc80112743f96fe062.jpeg"
+    },
+    {
+        "id": "SC-5FB09F",
+        "filename": "screenshot_038d247f8c064b2ba87fb118d4013754.png",
+        "original_name": "tile_esrgan_512.png",
+        "timestamp": "2026-07-17 16:16:06",
+        "url": "/api/v1/image/screenshots/file/screenshot_038d247f8c064b2ba87fb118d4013754.png"
     }
 ]

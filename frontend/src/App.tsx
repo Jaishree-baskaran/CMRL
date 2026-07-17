@@ -922,7 +922,7 @@ export default function App() {
                           <div className="relative aspect-video bg-slate-100 border-b border-slate-150 overflow-hidden cursor-pointer" onClick={() => setSelectedScreenshotUrl(fullUrl)}>
                             <img 
                               src={fullUrl} 
-                              alt={shot.original_name} 
+                              alt={`Snapshot ${shot.id}`} 
                               className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
                             />
                             <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
