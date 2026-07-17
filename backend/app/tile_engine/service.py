@@ -95,6 +95,55 @@ def _read_tile_cached(file_path_str: str, z: int, x: int, y: int) -> bytes:
                     w_limit = min(out_w, 256 - offset_x)
                     tile_data[:, offset_y:offset_y+h_limit, offset_x:offset_x+w_limit] = tile_subset[:, :h_limit, :w_limit]
 
+                # 4. Super-Resolution / Image Clarity Enhancer for Deep Zooms
+                if z >= 20 and vrt.count >= 3:
+                    try:
+                        import cv2
+                        # Convert CHW to HWC for OpenCV processing
+                        img_hwc = np.transpose(tile_data, (1, 2, 0))
+                        
+                        # Handle float to uint8 conversion if needed
+                        if img_hwc.dtype != np.uint8:
+                            max_val = img_hwc.max() if img_hwc.max() > 0 else 1.0
+                            img_hwc = (img_hwc / max_val * 255).astype(np.uint8)
+                            
+                        has_alpha = img_hwc.shape[2] == 4
+                        rgb = img_hwc[:, :, :3]
+                        alpha = img_hwc[:, :, 3] if has_alpha else None
+                        
+                        # 2x Bilinear/Lanczos upscaling to interpolate sub-pixel edges
+                        upscaled = cv2.resize(rgb, (512, 512), interpolation=cv2.INTER_LANCZOS4)
+                        
+                        # Unsharp Mask Filter: Original + (Original - GaussianBlur) * Strength
+                        gaussian = cv2.GaussianBlur(upscaled, (0, 0), 2.0)
+                        sharpened = cv2.addWeighted(upscaled, 1.8, gaussian, -0.8, 0)
+                        
+                        # High-frequency detail reinforcement (Laplacian kernel pass)
+                        kernel = np.array([
+                            [0, -0.15, 0],
+                            [-0.15, 1.6, -0.15],
+                            [0, -0.15, 0]
+                        ], dtype=np.float32)
+                        detail_boost = cv2.filter2D(sharpened, -1, kernel)
+                        
+                        # Downscale back to 256x256 using Area mapping to avoid aliasing artifacts
+                        rgb_final = cv2.resize(detail_boost, (256, 256), interpolation=cv2.INTER_AREA)
+                        
+                        # Reassemble bands
+                        if has_alpha:
+                            img_final = np.zeros((256, 256, 4), dtype=np.uint8)
+                            img_final[:, :, :3] = rgb_final
+                            img_final[:, :, 3] = alpha
+                        else:
+                            img_final = rgb_final
+                            
+                        # Convert back to CHW for rasterio writer
+                        tile_data = np.transpose(img_final, (2, 0, 1))
+                        
+                    except Exception as ex:
+                        # Fallback silently to normal rendering if CV2 fails
+                        pass
+
                 # 5. Compress and write the windowed data as standard PNG bytes
                 with MemoryFile() as memfile:
                     with memfile.open(
