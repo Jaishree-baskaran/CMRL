@@ -20,12 +20,19 @@ from app.tile_engine.config import settings
 
 from app.image_engine.service import TIFFMetadataService
 
-MODEL_PATH = "c:\\Users\\Jaishree Baskaran\\Downloads\\Railway\\backend\\data\\models\\real_esrgan_x2.onnx"
+MODEL_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "models"
+MODEL_PATH = str(MODEL_DIR / "real_esrgan_x2.onnx")
 _realesrgan_session = None
 
 def get_realesrgan_session():
     global _realesrgan_session
     if _realesrgan_session is None:
+        import os
+        if not os.path.exists(MODEL_PATH):
+            os.makedirs(MODEL_DIR, exist_ok=True)
+            import urllib.request
+            url = "https://huggingface.co/SceneWorks/real-esrgan-onnx/resolve/main/real_esrgan_x2.onnx"
+            urllib.request.urlretrieve(url, MODEL_PATH)
         if os.path.exists(MODEL_PATH):
             _realesrgan_session = ort.InferenceSession(MODEL_PATH, providers=['CPUExecutionProvider'])
     return _realesrgan_session
@@ -151,7 +158,7 @@ def _read_tile_cached(file_path_str: str, z: int, x: int, y: int, clarity: bool 
                         pass
 
                 # 5. Compress and write the windowed data as standard PNG bytes
-                out_w, out_h = (512, 512) if (clarity and vrt.count >= 3) else (256, 256)
+                out_h, out_w = tile_data.shape[1], tile_data.shape[2]
                 with MemoryFile() as memfile:
                     with memfile.open(
                         driver="PNG",
