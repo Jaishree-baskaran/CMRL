@@ -318,3 +318,94 @@ def update_defect_status(defect_id: str, status: str = Query(..., description="N
     return {"status": "success", "updated_defect": defect_id, "new_status": status}
 
 
+# Dynamic Screenshot Upload & Gallery Service
+from fastapi import UploadFile, File
+from fastapi.responses import FileResponse
+import shutil
+import uuid
+from datetime import datetime
+
+def get_screenshots_dir() -> Path:
+    dir_path = Path(__file__).resolve().parent.parent.parent / "data" / "screenshots"
+    dir_path.mkdir(parents=True, exist_ok=True)
+    return dir_path
+
+def get_screenshots_json_path() -> Path:
+    return Path(__file__).resolve().parent.parent.parent / "data" / "screenshots.json"
+
+@router.get(
+    "/screenshots",
+    status_code=status.HTTP_200_OK,
+    summary="Get all uploaded screenshots",
+    description="Loads metadata for all screenshots uploaded by inspectors."
+)
+def get_screenshots():
+    path = get_screenshots_json_path()
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w") as f:
+            json.dump([], f)
+            
+    with open(path, "r") as f:
+        return json.load(f)
+
+@router.post(
+    "/screenshots/upload",
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload a new screenshot to the digital twin database",
+    description="Saves a snapshot from the client and registers it in the persistent database."
+)
+def upload_screenshot(file: UploadFile = File(...)):
+    try:
+        # Create a unique filename to prevent duplicates
+        ext = Path(file.filename).suffix or ".png"
+        unique_filename = f"screenshot_{uuid.uuid4().hex}{ext}"
+        
+        save_path = get_screenshots_dir() / unique_filename
+        
+        # Save the uploaded file
+        with open(save_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # Update metadata database
+        json_path = get_screenshots_json_path()
+        screenshots = []
+        if json_path.exists():
+            with open(json_path, "r") as f:
+                try:
+                    screenshots = json.load(f)
+                except Exception:
+                    screenshots = []
+                    
+        new_screenshot = {
+            "id": f"SC-{uuid.uuid4().hex[:6].upper()}",
+            "filename": unique_filename,
+            "original_name": file.filename,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "url": f"/api/v1/image/screenshots/file/{unique_filename}"
+        }
+        
+        screenshots.append(new_screenshot)
+        
+        with open(json_path, "w") as f:
+            json.dump(screenshots, f, indent=4)
+            
+        return {"status": "success", "screenshot": new_screenshot}
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload screenshot: {str(e)}"
+        )
+
+@router.get(
+    "/screenshots/file/{filename}",
+    response_class=FileResponse,
+    summary="Download or view a specific screenshot file",
+    description="Loads and returns the raw image file for a given screenshot filename."
+)
+def get_screenshot_file(filename: str):
+    file_path = get_screenshots_dir() / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Screenshot file not found")
+    return FileResponse(path=str(file_path))

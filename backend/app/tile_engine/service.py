@@ -1,5 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
+import os
+import onnxruntime as ort
 import rasterio
 from rasterio.vrt import WarpedVRT
 from rasterio.io import MemoryFile
@@ -18,9 +20,19 @@ from app.tile_engine.config import settings
 
 from app.image_engine.service import TIFFMetadataService
 
+MODEL_PATH = "c:\\Users\\Jaishree Baskaran\\Downloads\\Railway\\backend\\data\\models\\real_esrgan_x2.onnx"
+_realesrgan_session = None
+
+def get_realesrgan_session():
+    global _realesrgan_session
+    if _realesrgan_session is None:
+        if os.path.exists(MODEL_PATH):
+            _realesrgan_session = ort.InferenceSession(MODEL_PATH, providers=['CPUExecutionProvider'])
+    return _realesrgan_session
+
 class TileService:
     @staticmethod
-    def get_tile(filename: str, z: int, x: int, y: int) -> bytes:
+    def get_tile(filename: str, z: int, x: int, y: int, clarity: bool = False) -> bytes:
         """
         Securely resolves the filename, checks cached tiles, or processes the windowed raster.
         """
@@ -31,10 +43,10 @@ class TileService:
         cog_path, _ = TIFFMetadataService.get_secure_cog_path(secure_path)
         
         # Convert path to string for caching hashability
-        return _read_tile_cached(str(cog_path), z, x, y)
+        return _read_tile_cached(str(cog_path), z, x, y, clarity)
 
 @lru_cache(maxsize=settings.TILE_CACHE_SIZE)
-def _read_tile_cached(file_path_str: str, z: int, x: int, y: int) -> bytes:
+def _read_tile_cached(file_path_str: str, z: int, x: int, y: int, clarity: bool = False) -> bytes:
     """
     LRU Cached internal reader. Reads and compiles a 256x256 tile slice.
     """
@@ -95,61 +107,56 @@ def _read_tile_cached(file_path_str: str, z: int, x: int, y: int) -> bytes:
                     w_limit = min(out_w, 256 - offset_x)
                     tile_data[:, offset_y:offset_y+h_limit, offset_x:offset_x+w_limit] = tile_subset[:, :h_limit, :w_limit]
 
-                # 4. Super-Resolution / Image Clarity Enhancer for Deep Zooms
-                if z >= 20 and vrt.count >= 3:
+                # 4. AI Detail Enhancement and Sharp upscaler (Real-ESRGAN x2 ONNX Inference)
+                if clarity and vrt.count >= 3:
                     try:
-                        import cv2
-                        # Convert CHW to HWC for OpenCV processing
-                        img_hwc = np.transpose(tile_data, (1, 2, 0))
-                        
-                        # Handle float to uint8 conversion if needed
-                        if img_hwc.dtype != np.uint8:
-                            max_val = img_hwc.max() if img_hwc.max() > 0 else 1.0
-                            img_hwc = (img_hwc / max_val * 255).astype(np.uint8)
+                        session = get_realesrgan_session()
+                        if session is not None:
+                            # 1. Prepare RGB channel (convert shape to HWC, get raw RGB)
+                            img_hwc = np.transpose(tile_data, (1, 2, 0))
+                            if img_hwc.dtype != np.uint8:
+                                max_val = img_hwc.max() if img_hwc.max() > 0 else 1.0
+                                img_hwc = (img_hwc / max_val * 255).astype(np.uint8)
                             
-                        has_alpha = img_hwc.shape[2] == 4
-                        rgb = img_hwc[:, :, :3]
-                        alpha = img_hwc[:, :, 3] if has_alpha else None
-                        
-                        # 2x Bilinear/Lanczos upscaling to interpolate sub-pixel edges
-                        upscaled = cv2.resize(rgb, (512, 512), interpolation=cv2.INTER_LANCZOS4)
-                        
-                        # Unsharp Mask Filter: Original + (Original - GaussianBlur) * Strength
-                        gaussian = cv2.GaussianBlur(upscaled, (0, 0), 2.0)
-                        sharpened = cv2.addWeighted(upscaled, 1.8, gaussian, -0.8, 0)
-                        
-                        # High-frequency detail reinforcement (Laplacian kernel pass)
-                        kernel = np.array([
-                            [0, -0.15, 0],
-                            [-0.15, 1.6, -0.15],
-                            [0, -0.15, 0]
-                        ], dtype=np.float32)
-                        detail_boost = cv2.filter2D(sharpened, -1, kernel)
-                        
-                        # Downscale back to 256x256 using Area mapping to avoid aliasing artifacts
-                        rgb_final = cv2.resize(detail_boost, (256, 256), interpolation=cv2.INTER_AREA)
-                        
-                        # Reassemble bands
-                        if has_alpha:
-                            img_final = np.zeros((256, 256, 4), dtype=np.uint8)
-                            img_final[:, :, :3] = rgb_final
-                            img_final[:, :, 3] = alpha
-                        else:
-                            img_final = rgb_final
+                            has_alpha = img_hwc.shape[2] == 4
+                            rgb = img_hwc[:, :, :3]
+                            alpha = img_hwc[:, :, 3] if has_alpha else None
                             
-                        # Convert back to CHW for rasterio writer
-                        tile_data = np.transpose(img_final, (2, 0, 1))
-                        
+                            # Real-ESRGAN ONNX expects CHW input shape (1, 3, 256, 256) normalized to [0, 1]
+                            rgb_chw = np.transpose(rgb, (2, 0, 1)).astype(np.float32) / 255.0
+                            input_blob = np.expand_dims(rgb_chw, axis=0)
+                            
+                            # Run inference session
+                            input_name = session.get_inputs()[0].name
+                            output_name = session.get_outputs()[0].name
+                            out = session.run([output_name], {input_name: input_blob})
+                            
+                            # Output shape is (1, 3, 512, 512), scaled [0.0, 1.0]
+                            # Post-process back to uint8 (3, 512, 512)
+                            out_img = (out[0][0] * 255.0).clip(0, 255).astype(np.uint8)
+                            
+                            # Handle alpha band (resize separately using linear)
+                            if has_alpha:
+                                import cv2
+                                alpha_up = cv2.resize(alpha, (512, 512), interpolation=cv2.INTER_LINEAR)
+                                # Reassemble to (4, 512, 512)
+                                tile_data = np.zeros((4, 512, 512), dtype=np.uint8)
+                                tile_data[:3, :, :] = out_img
+                                tile_data[3, :, :] = alpha_up
+                            else:
+                                tile_data = out_img
+                                
                     except Exception as ex:
-                        # Fallback silently to normal rendering if CV2 fails
+                        # Fallback silently to normal rendering if inference fails
                         pass
 
                 # 5. Compress and write the windowed data as standard PNG bytes
+                out_w, out_h = (512, 512) if (clarity and vrt.count >= 3) else (256, 256)
                 with MemoryFile() as memfile:
                     with memfile.open(
                         driver="PNG",
-                        width=256,
-                        height=256,
+                        width=out_w,
+                        height=out_h,
                         count=vrt.count,
                         dtype=dtype
                     ) as dst:

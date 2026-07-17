@@ -29,7 +29,9 @@ import {
   Search,
   Ruler,
   Compass,
-  X
+  X,
+  Camera,
+  Upload
 } from 'lucide-react';
 
 interface RasterBounds {
@@ -79,7 +81,7 @@ interface DefectItem {
 export default function App() {
   const cesiumContainerRef = useRef<HTMLDivElement>(null);
   const [viewer, setViewer] = useState<Viewer | null>(null);
-  const [activeTab, setActiveTab] = useState<'alignment' | 'ai' | 'layers'>('alignment');
+  const [activeTab, setActiveTab] = useState<'alignment' | 'ai' | 'layers' | 'screenshots'>('alignment');
   
   // Loading and metadata states
   const [loadingStep, setLoadingStep] = useState<string>("Initializing Railway Corridor...");
@@ -116,15 +118,65 @@ export default function App() {
     telemetry: true
   });
 
+  const [isClarityEnabled, setIsClarityEnabled] = useState(false);
+
+  // Screenshots Gallery States & Actions
+  const [screenshots, setScreenshots] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [selectedScreenshotUrl, setSelectedScreenshotUrl] = useState<string | null>(null);
+
+  const fetchScreenshots = async () => {
+    try {
+      const baseUrl = getBackendUrl();
+      const res = await fetch(`${baseUrl}/api/v1/image/screenshots`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setScreenshots(data);
+      }
+    } catch (err) {
+      console.error("Failed to load screenshots:", err);
+    }
+  };
+
+  const handleUploadScreenshot = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const baseUrl = getBackendUrl();
+      const res = await fetch(`${baseUrl}/api/v1/image/screenshots/upload`, {
+        method: "POST",
+        body: formData
+      });
+      if (res.ok) {
+        await fetchScreenshots();
+      } else {
+        console.error("Failed to upload screenshot");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchScreenshots();
+  }, []);
+
   // Calculate dynamic backend URL based on dev tunnels or Render cloud
   const getBackendUrl = () => {
     if (window.location.hostname.includes("onrender.com")) {
       return "https://railvision-backend-vhia.onrender.com";
     }
     if (window.location.hostname.includes("devtunnels.ms")) {
-      return window.location.origin.replace("-3000.", "-8000.");
+      return window.location.origin.replace("-3000.", "-8999.");
     }
-    return "http://localhost:8000";
+    return "http://localhost:8999";
   };
 
   const toggleLayer = (layerKey: keyof typeof activeLayers) => {
@@ -484,21 +536,8 @@ export default function App() {
       // Style scene backdrop with slate-950 dark background matching GIS UI
       cesiumViewer.scene.backgroundColor = Color.fromCssColorString('#020617');
 
-      // Bind dynamic XYZ tile layer server to coordinate bounds
-      const wgs84 = metadata.wgs84_bounds;
-      const baseUrl = getBackendUrl();
-      const tileProvider = new UrlTemplateImageryProvider({
-        url: `${baseUrl}/api/v1/tiles/{z}/{x}/{y}.png?filename=SINGLE_TRACK.tif`,
-        minimumLevel: 0,
-        maximumLevel: 30, // High levels for infinite scaling
-        rectangle: Rectangle.fromDegrees(wgs84.left, wgs84.bottom, wgs84.right, wgs84.top)
-      });
-      
-      const layer = cesiumViewer.imageryLayers.addImageryProvider(tileProvider);
-      layer.minificationFilter = TextureMinificationFilter.NEAREST;
-      layer.magnificationFilter = TextureMagnificationFilter.NEAREST;
-
       // Immediately fly camera to focus strictly on the loaded track rectangle
+      const wgs84 = metadata.wgs84_bounds;
       cesiumViewer.camera.flyTo({
         destination: Rectangle.fromDegrees(wgs84.left, wgs84.bottom, wgs84.right, wgs84.top),
         duration: 2.5
@@ -508,15 +547,34 @@ export default function App() {
     }
   }, [loadingStep, metadata, viewer]);
 
-  // Handle layer toggle visibility
+  // Handle layer toggle visibility and dynamic AI Clarity reloading
   useEffect(() => {
     if (viewer && metadata) {
       const imageryLayers = viewer.imageryLayers;
+      
+      // Remove any existing custom imagery layer at index 0 to avoid duplicates
       if (imageryLayers.length > 0) {
-        imageryLayers.get(0).show = activeLayers.raster;
+        imageryLayers.remove(imageryLayers.get(0));
       }
+      
+      const wgs84 = metadata.wgs84_bounds;
+      const baseUrl = getBackendUrl();
+      const tileSize = isClarityEnabled ? 512 : 256;
+      const tileProvider = new UrlTemplateImageryProvider({
+        url: `${baseUrl}/api/v1/tiles/{z}/{x}/{y}.png?filename=SINGLE_TRACK.tif&clarity=${isClarityEnabled}`,
+        tileWidth: tileSize,
+        tileHeight: tileSize,
+        minimumLevel: 0,
+        maximumLevel: 30, // High levels for infinite scaling
+        rectangle: Rectangle.fromDegrees(wgs84.left, wgs84.bottom, wgs84.right, wgs84.top)
+      });
+      
+      const layer = imageryLayers.addImageryProvider(tileProvider, 0);
+      layer.minificationFilter = TextureMinificationFilter.NEAREST;
+      layer.magnificationFilter = TextureMagnificationFilter.NEAREST;
+      layer.show = activeLayers.raster;
     }
-  }, [activeLayers.raster, viewer, metadata]);
+  }, [activeLayers.raster, isClarityEnabled, viewer, metadata]);
 
   // Loading Screen Overlay
   if (loadingStep !== "Idle") {
@@ -579,7 +637,7 @@ export default function App() {
         </header>
 
         {/* Tab Selector */}
-        <div className="grid grid-cols-3 gap-1.5 p-4 bg-slate-50 border-b border-slate-200/80 text-xs font-semibold relative z-10">
+        <div className="grid grid-cols-4 gap-1.5 p-4 bg-slate-50 border-b border-slate-200/80 text-xs font-semibold relative z-10">
           <button 
             onClick={() => setActiveTab('alignment')}
             className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'alignment' ? 'bg-blue-50 border border-blue-200/60 text-blue-700 shadow-sm' : 'border border-transparent text-slate-550 hover:text-slate-850 hover:bg-slate-200/40'}`}
@@ -599,7 +657,14 @@ export default function App() {
             className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'layers' ? 'bg-blue-50 border border-blue-200/60 text-blue-700 shadow-sm' : 'border border-transparent text-slate-550 hover:text-slate-850 hover:bg-slate-200/40'}`}
           >
             <Layers size={14} />
-            <span>GIS Layers</span>
+            <span>Layers</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('screenshots')}
+            className={`py-2 px-1 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'screenshots' ? 'bg-blue-50 border border-blue-200/60 text-blue-700 shadow-sm' : 'border border-transparent text-slate-550 hover:text-slate-850 hover:bg-slate-200/40'}`}
+          >
+            <Camera size={14} />
+            <span>Screenshots</span>
           </button>
         </div>
 
@@ -811,6 +876,77 @@ export default function App() {
               </div>
             </div>
           )}
+
+          {activeTab === 'screenshots' && (
+            <div className="space-y-6 animate-fadeIn">
+              <div>
+                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Upload Screenshot</h2>
+                <div className="bg-white border border-dashed border-slate-300 hover:border-blue-400 rounded-2xl p-6 transition flex flex-col items-center justify-center gap-3 text-center cursor-pointer relative group">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleUploadScreenshot}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    disabled={isUploading}
+                  />
+                  <div className="p-3 bg-slate-50 group-hover:bg-blue-50 text-slate-400 group-hover:text-blue-500 rounded-full transition-all">
+                    {isUploading ? (
+                      <Loader2 className="animate-spin text-blue-500" size={24} />
+                    ) : (
+                      <Upload size={24} />
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-xs font-semibold text-slate-700 block">
+                      {isUploading ? "Uploading snapshot..." : "Choose screenshot to upload"}
+                    </span>
+                    <span className="text-[10px] text-slate-450 mt-1 block">PNG, JPG or JPEG up to 10MB</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Saved Snapshots ({screenshots.length})</h2>
+                {screenshots.length === 0 ? (
+                  <div className="bg-slate-50 rounded-xl border border-slate-200/60 p-6 text-center text-xs text-slate-450 font-medium">
+                    No screenshots saved yet. Upload a snapshot of your findings!
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3.5">
+                    {screenshots.map((shot: any) => {
+                      const baseUrl = getBackendUrl();
+                      const fullUrl = `${baseUrl}${shot.url}`;
+                      return (
+                        <div key={shot.id} className="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+                          {/* Image Preview container */}
+                          <div className="relative aspect-video bg-slate-100 border-b border-slate-150 overflow-hidden cursor-pointer" onClick={() => setSelectedScreenshotUrl(fullUrl)}>
+                            <img 
+                              src={fullUrl} 
+                              alt={shot.original_name} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                            />
+                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Eye className="text-white" size={16} />
+                            </div>
+                          </div>
+                          {/* Details */}
+                          <div className="p-2.5 flex-1 flex flex-col justify-between">
+                            <div className="text-[11px] font-bold text-slate-800">
+                              Snapshot {shot.id}
+                            </div>
+                            <div className="flex items-center justify-between text-[9px] text-slate-450 mt-1.5 pt-1.5 border-t border-slate-100">
+                              <span className="font-semibold text-blue-650">Recorded</span>
+                              <span>{shot.timestamp}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </main>
 
         <footer className="p-4 border-t border-slate-200 bg-slate-50 flex gap-2 items-center text-[10px] justify-between relative z-10">
@@ -846,6 +982,16 @@ export default function App() {
             >
               <Compass size={15} />
               <span>Measure Radius</span>
+            </button>
+
+            {/* AI Super-Resolution Clarity Enhancer */}
+            <button 
+              onClick={() => setIsClarityEnabled(!isClarityEnabled)}
+              className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-bold ${isClarityEnabled ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700 hover:text-slate-900'}`}
+              title="Toggle AI image upscaling and edge sharpening details"
+            >
+              <Cpu size={15} />
+              <span>AI Clarity</span>
             </button>
 
             {/* Unified Cancel/Exit Button */}
@@ -959,6 +1105,35 @@ export default function App() {
           )}
         </div>
       </section>
+
+      {/* Screenshot Lightbox Modal overlay */}
+      {selectedScreenshotUrl && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+          onClick={() => setSelectedScreenshotUrl(null)}
+        >
+          {/* Close button */}
+          <button 
+            onClick={() => setSelectedScreenshotUrl(null)}
+            className="absolute top-6 right-6 p-2.5 bg-slate-800/60 hover:bg-slate-700/80 text-white rounded-full transition-all cursor-pointer shadow-lg border border-white/10"
+            title="Close Lightbox"
+          >
+            <X size={20} />
+          </button>
+          
+          {/* Modal Container */}
+          <div 
+            className="relative max-w-full max-h-[85vh] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={selectedScreenshotUrl} 
+              alt="Screenshot preview" 
+              className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain border border-slate-700/40"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

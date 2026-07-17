@@ -1,0 +1,37 @@
+[
+    {
+        "id": "SC-9F5836",
+        "filename": "screenshot_5ef364a5ed51404586ea908e37531c2b.jpeg",
+        "original_name": "WhatsApp Image 2026-07-17 at 12.09.33.jpeg",
+        "timestamp": "2026-07-17 15:45:38",
+        "url": "/api/v1/image/screenshots/file/screenshot_5ef364a5ed51404586ea908e37531c2b.jpeg"
+    },
+    {
+        "id": "SC-CBCDE6",
+        "filename": "screenshot_eb73f0ffded1424b8eaee86246c448e1.jpeg",
+        "original_name": "WhatsApp Image 2026-07-17 at 12.09.35.jpeg",
+        "timestamp": "2026-07-17 15:45:43",
+        "url": "/api/v1/image/screenshots/file/screenshot_eb73f0ffded1424b8eaee86246c448e1.jpeg"
+    },
+    {
+        "id": "SC-F90277",
+        "filename": "screenshot_83566bef13074161b27633675a025c90.jpeg",
+        "original_name": "WhatsApp Image 2026-07-17 at 12.09.37.jpeg",
+        "timestamp": "2026-07-17 15:45:49",
+        "url": "/api/v1/image/screenshots/file/screenshot_83566bef13074161b27633675a025c90.jpeg"
+    },
+    {
+        "id": "SC-242BDA",
+        "filename": "screenshot_2056902637ad4a2797f8a26f71d7496d.jpeg",
+        "original_name": "WhatsApp Image 2026-07-17 at 12.09.43.jpeg",
+        "timestamp": "2026-07-17 15:45:54",
+        "url": "/api/v1/image/screenshots/file/screenshot_2056902637ad4a2797f8a26f71d7496d.jpeg"
+    },
+    {
+        "id": "SC-C9CB80",
+        "filename": "screenshot_b49e165fade646dc80112743f96fe062.jpeg",
+        "original_name": "WhatsApp Image 2026-07-17 at 12.10.53.jpeg",
+        "timestamp": "2026-07-17 15:46:00",
+        "url": "/api/v1/image/screenshots/file/screenshot_b49e165fade646dc80112743f96fe062.jpeg"
+    }
+]

@@ -39,11 +39,12 @@ def get_tile(
         ...,
         description="The filename of the TIFF image (must reside inside the configured data directory)",
         example="SINGLE_TRACK.tif"
-    )
+    ),
+    clarity: bool = Query(False, description="Enable AI Super-Resolution detail enhancement filter")
 ):
     try:
         # Retrieve the rendered tile bytes
-        tile_bytes = TileService.get_tile(filename, z, x, y)
+        tile_bytes = TileService.get_tile(filename, z, x, y, clarity)
         
         return Response(content=tile_bytes, media_type="image/png")
 
