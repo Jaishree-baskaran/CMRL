@@ -626,7 +626,7 @@ export default function App() {
       <aside className="w-[400px] bg-white border-r border-slate-200 flex flex-col z-10 shadow-xl relative">
         <header className="p-6 border-b border-slate-200/80 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
-            <img src={redbayLogo} alt="Redbay Logo" className="h-8 w-auto object-contain" />
+            <img src={redbayLogo} alt="Redbay Logo" className="h-12 w-auto object-contain" />
             <div>
               <h1 className="font-bold text-xs tracking-wider uppercase text-blue-900">RailVision AI</h1>
               <span className="text-[8px] text-slate-500 uppercase tracking-widest font-semibold block mt-0.5">GIS Twin Platform</span>
