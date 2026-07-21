@@ -625,11 +625,11 @@ export default function App() {
       {/* Sidebar Controls */}
       <aside className="w-[400px] bg-white border-r border-slate-200 flex flex-col z-10 shadow-xl relative">
         <header className="p-6 border-b border-slate-200/80 flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-4">
-            <img src={redbayLogo} alt="Redbay Logo" className="h-16 w-auto object-contain" />
+          <div className="flex items-center gap-5">
+            <img src={redbayLogo} alt="Redbay Logo" className="h-20 w-auto object-contain" />
             <div className="flex flex-col justify-center">
-              <h1 className="font-bold text-base tracking-wider uppercase text-blue-900">RailVision AI</h1>
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold block mt-0.5">GIS Twin Platform</span>
+              <h1 className="font-bold text-lg tracking-wider uppercase text-blue-900">RailVision AI</h1>
+              <span className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold block mt-1">GIS Twin Platform</span>
             </div>
           </div>
           <span className="flex h-2 w-2 relative">
