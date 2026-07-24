@@ -81,6 +81,8 @@ interface DefectItem {
 
 export default function App() {
   const cesiumContainerRef = useRef<HTMLDivElement>(null);
+  const baseLayerRef = useRef<any>(null);
+  const clarityLayerRef = useRef<any>(null);
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeTab, setActiveTab] = useState<'alignment' | 'ai' | 'layers' | 'screenshots'>('alignment');
   
@@ -548,32 +550,53 @@ export default function App() {
     }
   }, [loadingStep, metadata, viewer]);
 
-  // Handle layer toggle visibility and dynamic AI Clarity reloading
+  // Handle layer toggle visibility and dynamic AI Clarity reloading without flashing
   useEffect(() => {
     if (viewer && metadata) {
       const imageryLayers = viewer.imageryLayers;
-      
-      // Remove any existing custom imagery layer at index 0 to avoid duplicates
-      if (imageryLayers.length > 0) {
-        imageryLayers.remove(imageryLayers.get(0));
-      }
-      
       const wgs84 = metadata.wgs84_bounds;
       const baseUrl = getBackendUrl();
-      const tileSize = isClarityEnabled ? 512 : 256;
-      const tileProvider = new UrlTemplateImageryProvider({
-        url: `${baseUrl}/api/v1/tiles/{z}/{x}/{y}.png?filename=SINGLE_TRACK.tif&clarity=${isClarityEnabled}`,
-        tileWidth: tileSize,
-        tileHeight: tileSize,
-        minimumLevel: 0,
-        maximumLevel: 30, // High levels for infinite scaling
-        rectangle: Rectangle.fromDegrees(wgs84.left, wgs84.bottom, wgs84.right, wgs84.top)
-      });
+      const rect = Rectangle.fromDegrees(wgs84.left, wgs84.bottom, wgs84.right, wgs84.top);
       
-      const layer = imageryLayers.addImageryProvider(tileProvider, 0);
-      layer.minificationFilter = TextureMinificationFilter.NEAREST;
-      layer.magnificationFilter = TextureMagnificationFilter.NEAREST;
-      layer.show = activeLayers.raster;
+      // Initialize Base Layer once
+      if (!baseLayerRef.current) {
+        const baseProvider = new UrlTemplateImageryProvider({
+          url: `${baseUrl}/api/v1/tiles/{z}/{x}/{y}.png?filename=SINGLE_TRACK.tif&clarity=false`,
+          tileWidth: 256,
+          tileHeight: 256,
+          minimumLevel: 0,
+          maximumLevel: 30,
+          rectangle: rect
+        });
+        baseLayerRef.current = imageryLayers.addImageryProvider(baseProvider, 0);
+        baseLayerRef.current.minificationFilter = TextureMinificationFilter.NEAREST;
+        baseLayerRef.current.magnificationFilter = TextureMagnificationFilter.NEAREST;
+      }
+
+      // Initialize Clarity Layer lazily when first requested
+      if (isClarityEnabled && !clarityLayerRef.current) {
+        const clarityProvider = new UrlTemplateImageryProvider({
+          url: `${baseUrl}/api/v1/tiles/{z}/{x}/{y}.png?filename=SINGLE_TRACK.tif&clarity=true`,
+          tileWidth: 512,
+          tileHeight: 512,
+          minimumLevel: 0,
+          maximumLevel: 30,
+          rectangle: rect
+        });
+        clarityLayerRef.current = imageryLayers.addImageryProvider(clarityProvider, 1);
+        clarityLayerRef.current.minificationFilter = TextureMinificationFilter.NEAREST;
+        clarityLayerRef.current.magnificationFilter = TextureMagnificationFilter.NEAREST;
+      }
+      
+      // Smoothly toggle visibility without deleting the cached tiles
+      if (baseLayerRef.current) {
+        // Keep base layer visible underneath so there's no black screen while high-res loads
+        baseLayerRef.current.show = activeLayers.raster;
+      }
+      
+      if (clarityLayerRef.current) {
+        clarityLayerRef.current.show = activeLayers.raster && isClarityEnabled;
+      }
     }
   }, [activeLayers.raster, isClarityEnabled, viewer, metadata]);
 
