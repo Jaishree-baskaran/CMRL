@@ -577,8 +577,8 @@ export default function App() {
       if (isClarityEnabled && !clarityLayerRef.current) {
         const clarityProvider = new UrlTemplateImageryProvider({
           url: `${baseUrl}/api/v1/tiles/{z}/{x}/{y}.png?filename=SINGLE_TRACK.tif&clarity=true`,
-          tileWidth: 512,
-          tileHeight: 512,
+          tileWidth: 256,
+          tileHeight: 256,
           minimumLevel: 0,
           maximumLevel: 30,
           rectangle: rect
