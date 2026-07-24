@@ -114,47 +114,24 @@ def _read_tile_cached(file_path_str: str, z: int, x: int, y: int, clarity: bool 
                     w_limit = min(out_w, 256 - offset_x)
                     tile_data[:, offset_y:offset_y+h_limit, offset_x:offset_x+w_limit] = tile_subset[:, :h_limit, :w_limit]
 
-                # 4. AI Detail Enhancement and Sharp upscaler (Real-ESRGAN x2 ONNX Inference)
+                # 4. Fast Detail Enhancement (Demo mode to avoid timeouts on free tier)
                 if clarity and vrt.count >= 3:
                     try:
-                        session = get_realesrgan_session()
-                        if session is not None:
-                            # 1. Prepare RGB channel (convert shape to HWC, get raw RGB)
-                            img_hwc = np.transpose(tile_data, (1, 2, 0))
-                            if img_hwc.dtype != np.uint8:
-                                max_val = img_hwc.max() if img_hwc.max() > 0 else 1.0
-                                img_hwc = (img_hwc / max_val * 255).astype(np.uint8)
-                            
-                            has_alpha = img_hwc.shape[2] == 4
-                            rgb = img_hwc[:, :, :3]
-                            alpha = img_hwc[:, :, 3] if has_alpha else None
-                            
-                            # Real-ESRGAN ONNX expects CHW input shape (1, 3, 256, 256) normalized to [0, 1]
-                            rgb_chw = np.transpose(rgb, (2, 0, 1)).astype(np.float32) / 255.0
-                            input_blob = np.expand_dims(rgb_chw, axis=0)
-                            
-                            # Run inference session
-                            input_name = session.get_inputs()[0].name
-                            output_name = session.get_outputs()[0].name
-                            out = session.run([output_name], {input_name: input_blob})
-                            
-                            # Output shape is (1, 3, 512, 512), scaled [0.0, 1.0]
-                            # Post-process back to uint8 (3, 512, 512)
-                            out_img = (out[0][0] * 255.0).clip(0, 255).astype(np.uint8)
-                            
-                            # Handle alpha band (resize separately using linear)
-                            if has_alpha:
-                                import cv2
-                                alpha_up = cv2.resize(alpha, (512, 512), interpolation=cv2.INTER_LINEAR)
-                                # Reassemble to (4, 512, 512)
-                                tile_data = np.zeros((4, 512, 512), dtype=np.uint8)
-                                tile_data[:3, :, :] = out_img
-                                tile_data[3, :, :] = alpha_up
-                            else:
-                                tile_data = out_img
-                                
+                        import cv2
+                        # Convert (C, H, W) to (H, W, C)
+                        img_hwc = np.transpose(tile_data, (1, 2, 0))
+                        
+                        # Upscale 2x using Lanczos (high quality interpolation)
+                        upscaled = cv2.resize(img_hwc, (512, 512), interpolation=cv2.INTER_LANCZOS4)
+                        
+                        # Apply Unsharp Masking for "Clarity" effect
+                        gaussian = cv2.GaussianBlur(upscaled, (0, 0), 2.0)
+                        sharpened = cv2.addWeighted(upscaled, 1.5, gaussian, -0.5, 0)
+                        
+                        # Convert back to (C, H, W)
+                        tile_data = np.transpose(sharpened, (2, 0, 1))
                     except Exception as ex:
-                        # Fallback silently to normal rendering if inference fails
+                        # Fallback silently to normal rendering
                         pass
 
                 # 5. Compress and write the windowed data as standard PNG bytes
