@@ -568,7 +568,7 @@ export default function App() {
           maximumLevel: 30,
           rectangle: rect
         });
-        baseLayerRef.current = imageryLayers.addImageryProvider(baseProvider, 0);
+        baseLayerRef.current = imageryLayers.addImageryProvider(baseProvider);
         baseLayerRef.current.minificationFilter = TextureMinificationFilter.NEAREST;
         baseLayerRef.current.magnificationFilter = TextureMagnificationFilter.NEAREST;
       }
@@ -583,7 +583,7 @@ export default function App() {
           maximumLevel: 30,
           rectangle: rect
         });
-        clarityLayerRef.current = imageryLayers.addImageryProvider(clarityProvider, 1);
+        clarityLayerRef.current = imageryLayers.addImageryProvider(clarityProvider);
         clarityLayerRef.current.minificationFilter = TextureMinificationFilter.NEAREST;
         clarityLayerRef.current.magnificationFilter = TextureMagnificationFilter.NEAREST;
       }
